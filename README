@@ -1,0 +1,152 @@
+SimpleTwitterPost
+=================
+
+This plugin allows your Rails application to post status updates to
+the twitter service.
+
+For example, using Twitter is a simple way to inform your Rails
+application's community of activities of the members on the site, or your
+application may have other interesting updates to post, daily reports,
+or otherwise.
+
+There are two Ruby gems to connect to Twitter already:
+
+  http://twitter.rubyforge.org
+
+  http://twitter4r.rubyforge.org
+
+These are comprehensive (for example, they cover OAUTH, friend's
+timelines, Twitter trends, etc).
+
+This plugin specializes in posting to twitter only. Using a ruby http
+client, this can be accomplished in a few lines of code.
+
+require "net/http"
+require "uri"
+
+uri = URI.parse("http://api.twitter.com/1/statuses/update.json")
+
+http = Net::HTTP.new(uri.host, uri.port)
+request = Net::HTTP::Post.new(uri.request_uri)
+request.basic_auth("username", "password")
+request.set_form_data(:status => 'pretty easy to post through net/http')
+response = http.request(request)
+
+(Twitter says it will not support Basic Authentication past August 2010
+at http://dev.twitter.com/pages/oauth_faq)
+
+So what this plugin adds is:
+
+A. One would like to be able to configure the username and password,
+so as to select different twitter accounts depending on RAILS_ENV
+(development/production).
+
+This plugin allows this through a configuration file 
+
+  config/simple_twitter_post.yml
+
+B. The main motivation for the plugin, are these three points:
+
+ 1. One would like to be able to build the message posted to twitter
+    from database column values.
+
+ 2. One would like to invoke some URL shortener, if the status update
+    relates to an object of your Rails App that has a URI
+
+ 3. Remove the HTTP exchanges with the URL shortening service and twitter
+    from the web application request processing path.
+
+Let's discuss these in turn.
+
+1. This plugin allows you to write
+
+  poster = SimpleTwitterPost::Base.new
+  poster.post("Please welcome new user ':user_name'!", :user_name => user.name)
+
+or 
+
+  poster.post(":comment_user has commented on :article_owner's posting :post_title. :url",
+              :comment_user => user.full_name,
+              :article_owner => article_owner.full_name,
+              :post_title => post.title,
+              :url => post.url)
+
+  poster.post(":user has tagged posting :title with tags ':tags'. See :url",
+              :user => user.full_name,
+              :title => post.title,
+              :tags => tags.join(','),
+              :url => post.url)
+
+What happens when the message generated exceeds Twitter's limit of 140
+characters? After all, the post title may take up 60 characters, the
+tags may be 50 characters long, the user name may have 20 characters
+and the URL 20.
+
+This plugin detects when expanding the variables produces a message that
+is too long, and shortens the substitution values so that they are at
+least recognizable. For example, with this,
+
+
+  poster.post(":user has tagged posting ':title' with tags ':tags'. :url",
+              :user => 'Haribald Kingston',
+              :title => 'Fraunhofer FIT Touch-Free: Multi Users Gesture Control Technology',
+              :tags => 'technology, touch-free, gesture, prototype',
+              :url => 'http://tinyurl.com/2aeqpu')
+
+the Twitter timeline will show:
+
+  "Haribald Kingston has tagged posting 'Fraunhofer FIT Touch-Fre..' with
+  tags 'technology, touch-free, ..'. http://tinyurl.com/2aeqpu"
+
+It takes care not to truncate the URL, if it can be avoided.
+
+2. If a URL is given, it is passed to tinyurl.com for shortening. Chances
+are the resulting URL is shorter than the original URL of the application.
+
+3. The plugin uses Spawn so that twitter failures will not impact
+the user experience of the applicaiton. This plugin is available from
+http://github.com/tra/spawn
+
+
+Example
+=======
+
+  p = SimpleTwitterPost::Base.new
+  p.post("Welcome our new member ':user_name'. Profile is at :url", :user_name => user.name, :url => user.url)
+
+Requirements
+============
+
+ * httpclient gem 
+
+ * spawn plugin
+
+ * Twitter account
+
+See INSTALL file for more details.
+
+Note
+====
+
+ * Posts are sent to https://api.twitter.com, not http://api.twitter.com
+
+ * There is only one :url provided for, that will be passed throught tinyurl first.
+
+ * Unit tests are included to report problems.
+
+ * The plugin performs no external access when RAILS_ENV=='test'
+
+ * This is Version 0.1. Not perfect, but works mostly. 
+   One might like to configure other shorteners, for example, bit.ly,
+   One might prefer to log failures of the shortener or twitter service
+
+ * Not sure if spawn can be replaced by something better
+
+ * The strategy chosen to ensure the message fits in 140 characters is simple, but
+   should mostly work. Might be interesting to work out some other strategy.
+   On the other hand, it's not necessarily going to be important.
+
+
+Copyright (c) 2010 The Buckmaster Institute, Inc., released under the MIT license
+
+Author: Stephan Wehner, stephan@buckmaster.ca

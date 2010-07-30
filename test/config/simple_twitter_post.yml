@@ -1,0 +1,9 @@
+development:
+  user_id: dev_account
+  password: dev_password
+plugin_test:
+  user_id: test_account
+  password: test_password
+production:
+  user_id: prod_account
+  password: prod_password

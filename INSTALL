@@ -1,0 +1,33 @@
+SIMPLE_TWITTER_POST PLUGIN INSTALLATION
+---------------------------------------
+
+Additional steps:
+
+1. Make sure the httpclient gem is available.
+
+ * Gem homepage: http://raa.ruby-lang.org/project/httpclient/
+ * gem install httpclient --source http://dev.ctor.org/download/
+
+2. Get spawn plugin
+
+ * http://github.com/tra/spawn
+
+3. Place in config/simple_twitter_post.yml 
+
+development:
+  user_id: dev_account
+  password: dev_password
+plugin_test:
+  user_id: test_account
+  password: test_password
+production:
+  user_id: prod_account
+  password: prod_password
+
+4. In config/environment.rb, make sure plugins are loaded in order
+
+config.plugins = [ :spawn, :simple_twitter_post, :all ] 
+
+5. If you haven't already, set up a twitter account for development
+environment, https://twitter.com/signup. Put credentials in
+config/simple_twitter_post.yml
