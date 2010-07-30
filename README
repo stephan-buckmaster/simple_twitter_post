@@ -1,3 +1,10 @@
+WARNING
+=======
+
+Twitter says its API will not support Basic Authentication after August 16, 2010.
+The present version of this plugin uses Basic Authentication. Proof-of-concept kind of stuff.
+This version is not going to work for long!
+
 SimpleTwitterPost
 =================
 
