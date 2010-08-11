@@ -10,10 +10,10 @@ class SimpleTwitterPostBaseTest < Test::Unit::TestCase
     a = SimpleTwitterPost::Base.new
     response = a.post('testing')
 
-    assert_equal ["https://api.twitter.com/1/statuses/update.json"], HTTPClient.last_urls
-    assert_equal [{:status=>"testing"}], HTTPClient.last_messages
+    assert_equal [], HTTPClient.last_urls
+    assert_equal [], HTTPClient.last_messages
 
-    assert_equal "[Post to https://api.twitter.com/1/statuses/update.json: {:status=>\"testing\"}]", response.content
+    assert_equal({:status=>"testing"}, response)
   end
 
   def test_message_with_url
@@ -21,26 +21,26 @@ class SimpleTwitterPostBaseTest < Test::Unit::TestCase
     response = a.post('testing :url', :url => 'http://mysite.com/article/2')
     
     # Tinyurl is used to shorten the URL
-    assert_equal ["http://tinyurl.com/api-create.php", "https://api.twitter.com/1/statuses/update.json"], HTTPClient.last_urls
-    assert_equal [{:url=>"http://mysite.com/article/2"},
-                  {:status=> "testing [Post to http://tinyurl.com/api-create.php: {:url=>\"http://mysite.com/article/2\"}]"}], HTTPClient.last_messages
+    assert_equal ["http://tinyurl.com/api-create.php"], HTTPClient.last_urls
+    assert_equal [{:url=>"http://mysite.com/article/2"}], HTTPClient.last_messages
 
-    assert_equal "[Post to https://api.twitter.com/1/statuses/update.json: {:status=>\"testing [Post to http://tinyurl.com/api-create.php: {:url=>\\\"http://mysite.com/article/2\\\"}]\"}]", response.content
+    assert_equal({:status=> "testing [Post to http://tinyurl.com/api-create.php: {:url=>\"http://mysite.com/article/2\"}]"}, response)
   end
 
   def test_message_truncated
     a = SimpleTwitterPost::Base.new
     response = a.post('a' * 140)
-    assert_equal "[Post to https://api.twitter.com/1/statuses/update.json: {:status=>\"#{'a'*140}\"}]", response.content
+    assert_equal({:status=>'a'*140}, response)
 
     response = a.post('b' * 141)
-    assert_equal "[Post to https://api.twitter.com/1/statuses/update.json: {:status=>\"#{'b'*140}\"}]", response.content
+    assert_equal({:status=>'b'*140}, response)
   end
 
   def test_empty_message
     a = SimpleTwitterPost::Base.new
     response = a.post('')
-    assert_equal "[Post to https://api.twitter.com/1/statuses/update.json: {:status=>\"\"}]", response.content
+    # assert_equal with hash needs brackets!
+    assert_equal({:status => ''}, response)
   end
 
   def test_nil_message

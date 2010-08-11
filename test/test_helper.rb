@@ -19,6 +19,23 @@ require File.join(File.dirname(__FILE__), '..', 'lib', 'simple_twitter_post')
 
 # Some more involved stubbing.
 # TODO Use mocha instead!
+
+class Grackle::Statuses
+ 
+  attr_reader :status
+  def update!(options)
+    @status = options
+  end
+end
+class Grackle::Client
+
+  attr_reader :statuses
+  def initialize(*args)
+    @statuses = Grackle::Statuses.new
+  end
+
+end
+
 class HTTPClient
   def self.last_urls
     @last_urls
@@ -36,6 +53,6 @@ class HTTPClient
   def post(url, message)
     self.class.last_urls << url
     self.class.last_messages << message
-    Struct.new(:content).new("[Post to #{url}: #{message.inspect}]")
+    Struct.new(:content,:header).new("[Post to #{url}: #{message.inspect}]", Struct.new(:status_code).new(200))
   end
 end

@@ -8,26 +8,37 @@ Additional steps:
  * Gem homepage: http://raa.ruby-lang.org/project/httpclient/
  * gem install httpclient --source http://dev.ctor.org/download/
 
-2. Get spawn plugin
+2. Make sure the grackle gem is available.
+
+ * Gem homepage: http://github.com/hayesdavis/grackle
+
+3. Get spawn plugin (optional)
 
  * http://github.com/tra/spawn
 
-3. Place in config/simple_twitter_post.yml 
+4. Place keys, tokens and secrets in config/simple_twitter_post.yml
+(or in config/simple_twitter_post.yml.sample)
 
 development:
-  user_id: dev_account
-  password: dev_password
-plugin_test:
-  user_id: test_account
-  password: test_password
+  consumer_key: ABCDEFGHIJKLMNOPQRSTU
+  consumer_secret: ABCDEFGHIJKLMNOPQRSTUVWXYZ12345678901234567
+  token: ABCDEFGHI-JKLMNOPQRSTUVWXYZ12345678901234567890123
+  token_secret: ABCDEFGHIJKLMNOPQRSTUVWXYZ123456778901234
+test:
+  consumer_key: ABCDEFGHIJKLMNOPQRSTU
+  consumer_secret: ABCDEFGHIJKLMNOPQRSTUVWXYZ12345678901234567
+  token: ABCDEFGHI-JKLMNOPQRSTUVWXYZ12345678901234567890123
+  token_secret: ABCDEFGHIJKLMNOPQRSTUVWXYZ123456778901234
 production:
-  user_id: prod_account
-  password: prod_password
+  consumer_key: ABCDEFGHIJKLMNOPQRSTU
+  consumer_secret: ABCDEFGHIJKLMNOPQRSTUVWXYZ12345678901234567
+  token: ABCDEFGHI-JKLMNOPQRSTUVWXYZ12345678901234567890123
+  token_secret: ABCDEFGHIJKLMNOPQRSTUVWXYZ123456778901234
 
-4. In config/environment.rb, make sure plugins are loaded in order
+5. In config/environment.rb, make sure plugins are loaded in order
 
 config.plugins = [ :spawn, :simple_twitter_post, :all ] 
 
-5. If you haven't already, set up a twitter account for development
-environment, https://twitter.com/signup. Put credentials in
-config/simple_twitter_post.yml
+6. If you haven't already, set up a twitter account for development
+environment, https://twitter.com/signup. Figure out the key,token+secrets; place
+them in config/simple_twitter_post.yml
